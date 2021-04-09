@@ -206,7 +206,7 @@ namespace ConsoleApp1
             if (line.Contains("ToDataSourceResult"))
                 return line.Replace("ToDataSourceResult", "ToDataSourceResultAsync");
             if (line.Contains("model."))
-                line.Replace("model.", "await _stmContext.");
+                return line.Replace("model.", "await _stmContext.");
             return line;
         }
 
