@@ -12,8 +12,8 @@ namespace ConsoleApp1
         public static void Generate()
         {
 
-            string readPath = @"D:\NhatThiCute\BLCustomer.Vendor.cs";
-            string writePath = @"D:\NhatThiCute\test2.cs";
+            string readPath = @"D:\YOUR-FOLDER\BLCustomer.Vendor.cs";
+            string writePath = @"D:\YOUR-FOLDER\test2.cs";
             string line;
             var sw = new StreamWriter(writePath);
 
@@ -38,10 +38,8 @@ namespace ConsoleApp1
                     ++lineNumber;
                     if (line.Contains("//"))
                     {
-                        line = line.Split("//")[0];
-
-                        if (string.IsNullOrWhiteSpace(line))
-                            continue;
+                        sw.WriteLine(line);
+                        continue;
                     }
                     if (line.Contains("{") && line.Contains("}"))
                     {
@@ -110,6 +108,10 @@ namespace ConsoleApp1
                     }
                     else if (line.Contains(throw_string))
                     {
+                        if (insideTry)
+                        {
+                            sw.WriteLine(line);
+                        }
                         continue;
                     }
                     else if (line.Contains("HttpPost"))

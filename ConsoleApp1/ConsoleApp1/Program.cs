@@ -10,7 +10,7 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             //ControllerGeneration();
-            BL_Generation.Generate();
+            //BL_Generation.Generate();
         }
 
         private static void ControllerGeneration()
@@ -41,6 +41,7 @@ namespace ConsoleApp1
                     }
                     else if (line.Contains("//"))
                     {
+                        sw.WriteLine(line);
                         continue;
                     }
                     else if (line.Contains("using"))
@@ -92,6 +93,10 @@ namespace ConsoleApp1
                     }
                     else if (line.Contains(throw_string))
                     {
+                        if (insideTry)
+                        {
+                            sw.WriteLine(line);
+                        }
                         continue;
                     }
                     else if (line.Contains("HttpPost"))
