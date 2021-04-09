@@ -9,6 +9,7 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+            //ControllerGeneration();
             BL_Generation.Generate();
         }
 
@@ -35,6 +36,7 @@ namespace ConsoleApp1
                     ++lineNumber;
                     if (line.Contains("{") && line.Contains("}"))
                     {
+                        sw.WriteLine(line);
                         continue;
                     }
                     else if (line.Contains("//"))

@@ -45,6 +45,7 @@ namespace ConsoleApp1
                     }
                     if (line.Contains("{") && line.Contains("}"))
                     {
+                        sw.WriteLine(line);
                         continue;
                     }
                     else if (line.Contains(using_string) && line.Contains(data_entities_string))
@@ -178,9 +179,10 @@ namespace ConsoleApp1
                     }
                     else
                     {
+                        // pass
                         if (insideCatch)
                         {
-                            continue;
+                            continue; 
                         }
                         if (insideFinally)
                         {
