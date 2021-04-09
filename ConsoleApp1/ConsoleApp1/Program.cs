@@ -15,8 +15,8 @@ namespace ConsoleApp1
 
         private static void ControllerGeneration()
         {
-            string readPath = @"D:\NhatThiCute\CUS.cs";
-            string writePath = @"D:\NhatThiCute\test.cs";
+            string readPath = @"D:\YOUR-FOLDER\CUS.cs";
+            string writePath = @"D:\YOUR-FOLDER\test.cs";
             string line;
             var sw = new StreamWriter(writePath);
 
