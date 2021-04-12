@@ -29,6 +29,7 @@ namespace ConsoleApp1
             bool insideTry = false;
             bool insideCatch = false;
             bool insideFinally = false;
+            bool insideDbContext = false;
 
             int lineNumber = 0;
             using (var streamReader = new StreamReader(readPath))
@@ -64,6 +65,7 @@ namespace ConsoleApp1
                     }
                     else if (line.Contains("public"))
                     {
+                        insideDbContext = false;
                         sw.WriteLine(GenerateMethodName(line));
                     }
                     else if (line.TrimStart().StartsWith(try_string))
@@ -144,7 +146,7 @@ namespace ConsoleApp1
                     {
                         if (!stack.Any())
                         {
-                            sw.WriteLine(format(line));
+                            sw.WriteLine(format(line, ref insideDbContext));
                             continue;
                         }
 
@@ -175,7 +177,7 @@ namespace ConsoleApp1
                             }
                             else
                             {
-                                sw.WriteLine(format(line));
+                                sw.WriteLine(format(line, ref insideDbContext));
                             };
                         }
                     }
@@ -194,19 +196,51 @@ namespace ConsoleApp1
                         {
                             continue;
                         }
-                        sw.WriteLine(format(line));
+                        sw.WriteLine(format(line, ref insideDbContext));
                     }
                 }
             }
             sw.Close();
         }
 
-        private static string format(string line)
+        private static string format(string line, ref bool insideDbContext)
         {
+            if (line.Contains("model.") && (line.Contains("Add") || line.Contains("Remove")))
+            {
+                return line;
+            }
+
+            if(line.Contains("model.") && (line.Contains("ToList()") || line.Contains("SingleOrDefault") || line.Contains("FirstOrDefault") || line.Contains("SaveChanges")))
+            {
+                insideDbContext = false;
+                line = line.Replace("ToList", "ToListAsync");
+                line = line.Replace("SingleOrDefault", "SingleOrDefaultAsync");
+                line = line.Replace("FirstOrDefault", "FirstOrDefaultAsync");
+                line = line.Replace("SaveChanges", "SaveChangesAsync");
+                return line.Replace("model.", "await _stmContext.");
+            }
+
+            if (line.Contains("model."))
+            {
+                insideDbContext = true;
+                return line.Replace("model.", "await _stmContext.");
+            }
+            
+            if(insideDbContext)
+            {
+                if(line.Contains("ToList()") || line.Contains("SingleOrDefault()") || line.Contains("FirstOrDefault()"))
+                {
+                    insideDbContext = false;
+                    line = line.Replace("ToList", "ToListAsync");
+                    line = line.Replace("SingleOrDefault", "SingleOrDefaultAsync");
+                    line = line.Replace("FirstOrDefault", "FirstOrDefaultAsync");
+                    return line;
+                }
+            }
+
             if (line.Contains("ToDataSourceResult"))
                 return line.Replace("ToDataSourceResult", "ToDataSourceResultAsync");
-            if (line.Contains("model."))
-                return line.Replace("model.", "await _stmContext.");
+            
             return line;
         }
 
