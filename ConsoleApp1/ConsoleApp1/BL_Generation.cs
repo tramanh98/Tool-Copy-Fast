@@ -44,7 +44,7 @@ namespace ConsoleApp1
                     }
                     if (line.Contains("{") && line.Contains("}"))
                     {
-                        sw.WriteLine(line);
+                        sw.WriteLine(format(line, ref insideDbContext));
                         continue;
                     }
                     else if (line.Contains(using_string) && line.Contains(data_entities_string))
@@ -210,23 +210,46 @@ namespace ConsoleApp1
                 return line;
             }
 
-            if(line.Contains("model.") && (line.Contains("ToList()") || line.Contains("SingleOrDefault") || line.Contains("FirstOrDefault") || line.Contains("SaveChanges")))
+            if (line.Contains("model.")
+                && (line.Contains("ToList()")
+                || line.Contains("SingleOrDefault")
+                || line.Contains("FirstOrDefault")
+                || line.Contains("SaveChanges")
+                || line.Contains("Count")
+                || line.Contains("Sum")
+                )
+                )
             {
                 insideDbContext = false;
                 line = line.Replace("ToList", "ToListAsync");
                 line = line.Replace("SingleOrDefault", "SingleOrDefaultAsync");
                 line = line.Replace("FirstOrDefault", "FirstOrDefaultAsync");
                 line = line.Replace("SaveChanges", "SaveChangesAsync");
+                line = line.Replace("Count", "CountAsync");
+                line = line.Replace("Sum", "SumAsync");
                 return line.Replace("model.", "await _stmContext.");
             }
+
+            // cc: Khoa Nguyễn
+            line = line.Replace("CusPart.CAT_Partner.TypeOfPartnerID", "CusPart.Partner.TypeOfPartnerID");
 
             if (line.Contains("model."))
             {
                 insideDbContext = true;
                 return line.Replace("model.", "await _stmContext.");
             }
-            
-            if(insideDbContext)
+
+            if (line.Contains("(model,"))
+            {
+                return line.Replace("(model,", "(_stmContext,");
+            }
+
+            if (line.Contains("CreateRequest"))
+            {
+                return line.Replace("CreateRequest", "new DataSourceRequest");
+            }
+
+            if (insideDbContext)
             {
                 if(line.Contains("ToList()") || line.Contains("SingleOrDefault()") || line.Contains("FirstOrDefault()"))
                 {
