@@ -215,8 +215,8 @@ namespace ConsoleApp1
                 || line.Contains("SingleOrDefault")
                 || line.Contains("FirstOrDefault")
                 || line.Contains("SaveChanges")
-                || line.Contains("Count")
-                || line.Contains("Sum")
+                || line.Contains("Count(")
+                || line.Contains("Sum(")
                 )
                 )
             {
@@ -225,13 +225,13 @@ namespace ConsoleApp1
                 line = line.Replace("SingleOrDefault", "SingleOrDefaultAsync");
                 line = line.Replace("FirstOrDefault", "FirstOrDefaultAsync");
                 line = line.Replace("SaveChanges", "SaveChangesAsync");
-                line = line.Replace("Count", "CountAsync");
-                line = line.Replace("Sum", "SumAsync");
+                line = line.Replace("Count(", "CountAsync(");
+                line = line.Replace("Sum(", "SumAsync(");
                 return line.Replace("model.", "await _stmContext.");
             }
 
             // cc: Khoa Nguyễn
-            line = line.Replace("CusPart.CAT_Partner.TypeOfPartnerID", "CusPart.Partner.TypeOfPartnerID");
+            line = line.Replace("CusPart.CAT_Partner.", "CusPart.Partner.");
 
             if (line.Contains("model."))
             {
@@ -300,7 +300,9 @@ namespace ConsoleApp1
                 ++index;
             }
 
-            return @$"public async Task<{dataType}> {methodNameAndParams}";
+            var sMethodName = @$"public async Task<{dataType}> {methodNameAndParams}";
+            sMethodName = sMethodName.Replace("Task<void>", "Task");
+            return sMethodName;
         }
 
         private static string getMethodName(string method)
