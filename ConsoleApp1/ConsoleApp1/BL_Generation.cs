@@ -217,6 +217,7 @@ namespace ConsoleApp1
                 || line.Contains("SaveChanges")
                 || line.Contains("Count(")
                 || line.Contains("Sum(")
+                || line.Contains("Any(")
                 )
                 )
             {
@@ -227,26 +228,41 @@ namespace ConsoleApp1
                 line = line.Replace("SaveChanges", "SaveChangesAsync");
                 line = line.Replace("Count(", "CountAsync(");
                 line = line.Replace("Sum(", "SumAsync(");
-                return line.Replace("model.", "await _stmContext.");
+                line = line.Replace("Any(", "AnyAsync(");
+                line = line.Replace("model.", "await _stmContext.");
+                if (line.Contains("foreach("))
+                    line = line.Replace("await _stmContext.", "_stmContext.");
+                return line;
+
             }
 
             // cc: Khoa Nguyễn
             line = line.Replace("CusPart.CAT_Partner.", "CusPart.Partner.");
+            line = line.Replace("Partner.CAT_Partner.", "Partner.Partner.");
 
             if (line.Contains("model."))
             {
                 insideDbContext = true;
-                return line.Replace("model.", "await _stmContext.");
+                line = line.Replace("model.", "await _stmContext.");
             }
+
+            line = line.Replace("await _stmContext.EventAccount", "_stmContext.EventAccount");
+            line = line.Replace("await _stmContext.EventRunning", "_stmContext.EventRunning");
+            line = line.Replace("System.Data.Entity.EntityState.", "EntityState.");
+            
 
             if (line.Contains("(model,"))
             {
-                return line.Replace("(model,", "(_stmContext,");
+                line = line.Replace("(model,", "(_stmContext,");
             }
+
+            if (line.Contains("ToDataSourceResult"))
+                line = line.Replace("ToDataSourceResult", "ToDataSourceResultAsync");
 
             if (line.Contains("CreateRequest"))
             {
-                return line.Replace("CreateRequest", "new DataSourceRequest");
+                line = line.Replace("CreateRequestSort", "new DataSourceRequest");
+                line = line.Replace("CreateRequest", "new DataSourceRequest");
             }
 
             if (insideDbContext)
@@ -260,9 +276,6 @@ namespace ConsoleApp1
                     return line;
                 }
             }
-
-            if (line.Contains("ToDataSourceResult"))
-                return line.Replace("ToDataSourceResult", "ToDataSourceResultAsync");
             
             return line;
         }
